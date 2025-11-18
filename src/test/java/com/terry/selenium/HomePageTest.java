@@ -13,6 +13,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.WebElement;
 
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.function.Function;
 
@@ -80,9 +81,9 @@ void optionToAddYogaToCart(){
     wait.until(ExpectedConditions.elementToBeClickable(By.className("gl-shop-card"))).click();
 
  
-   wait.until(ExpectedConditions.urlContains("/yoga"));
+   wait.until(ExpectedConditions.urlContains("/test"));
    String currentUrl = driver.getCurrentUrl();
-   Assertions.assertTrue(currentUrl.contains("/yoga"), "Expected URL to contain /yoga but was: " + currentUrl);
+   Assertions.assertTrue(currentUrl.contains("/test"), "Expected URL to contain /test but was: " + currentUrl);
 
    
 }
@@ -90,7 +91,7 @@ void optionToAddYogaToCart(){
 
 @Test
 void addingProductShowsItInCart(){
-    driver.get("https://graceful-living-web-application.onrender.com/shop/yoga");
+    driver.get("https://graceful-living-web-application.onrender.com/shop/test");
 
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
@@ -110,7 +111,7 @@ void yogaLessonsQuantityIncreasesWhenAddedAgain() {
     driver.get("https://graceful-living-web-application.onrender.com/cart");
      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
-    By yogaQuantityLocator = By.xpath("//tr[td[normalize-space()='Yoga Lessons']]/td[2]");
+    By yogaQuantityLocator = By.xpath("//tr[td[normalize-space()='test']]/td[2]");
 
      int before;
     try {
@@ -126,7 +127,7 @@ void yogaLessonsQuantityIncreasesWhenAddedAgain() {
     
 
   
-    driver.get("https://graceful-living-web-application.onrender.com/shop/yoga");
+    driver.get("https://graceful-living-web-application.onrender.com/shop/test");
    
     By addToCartButtonLocator = By.xpath("//button[normalize-space(text())='Add to Cart']");
 
@@ -211,10 +212,39 @@ void testShopManagmentLink(){
     WebElement shopManagementLink = wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Shop Management")));
     shopManagementLink.click();
 
-    wait.until(ExpectedConditions.urlContains("/shop/admin/list"));
-    String currentUrl = driver.getCurrentUrl();
-    Assertions.assertTrue(currentUrl.contains("/shop/admin/list"),
-        "Expected URL to contain /shop/admin/list but was: " + currentUrl);
+    WebElement newProduct = wait.until(ExpectedConditions.elementToBeClickable(By.linkText("+ New Product")));
+    newProduct.click();
+
+    WebElement itemTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("title")));
+    itemTitle.sendKeys("test");
+
+    WebElement itemPrice = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("priceDollars")));
+    itemPrice.sendKeys("100");
+
+    WebElement itemStock = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("stock")));
+    itemStock.sendKeys("1");
+
+    String filePath = Paths.get("src/test/resources/images/sound_healing.png")
+                       .toAbsolutePath()
+                       .toString();
+
+    WebElement itemImage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("image")));
+    itemImage.sendKeys(filePath);
+
+    WebElement createButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("button[type='submit']")));
+    createButton.click();
+
+    WebElement tileTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h2.gl-shop-card-title"))
+);
+
+
+    Assertions.assertEquals("test", tileTitle.getText(), "Expected to be on the New Product page");
+   
+   
+   
+   
+   
+  
 }
 
 }
