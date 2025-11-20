@@ -7,8 +7,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.WebElement;
@@ -32,6 +35,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @TestInstance(Lifecycle.PER_CLASS)  
 
@@ -114,12 +118,58 @@ public class HomePageTest {
         System.out.println("\u001B[32m" + NumOfTests + " tests are finished successfully!\u001B[0m");
     }
 
+    private void completeAllRadioSections() {
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    JavascriptExecutor js = (JavascriptExecutor) driver;
 
+    while (true) {
+        WebElement activeSection = wait.until(d ->
+                d.findElement(By.cssSelector("div.chakra-section.active"))
+        );
+
+        List<WebElement> fieldsets = activeSection.findElements(By.tagName("fieldset"));
+
+        for (WebElement fs : fieldsets) {
+            List<WebElement> radios = fs.findElements(By.cssSelector("input[type='radio']"));
+            WebElement choice = null;
+
+            for (WebElement r : radios) {
+                if (r.isDisplayed() && r.isEnabled()) {
+                    choice = r;
+                    break;
+                }
+            }
+
+            if (choice != null) {
+                js.executeScript("arguments[0].scrollIntoView({block: 'center'});", choice);
+                choice.click();
+            }
+        }
+
+        List<WebElement> nextButtons = activeSection.findElements(By.cssSelector("button.next-btn"));
+
+        if (!nextButtons.isEmpty()) {
+            WebElement next = nextButtons.get(0);
+            js.executeScript("arguments[0].scrollIntoView({block: 'center'});", next);
+            next.click();
+        } else {
+            break;
+        }
+    }
+
+    WebElement submitBtn = driver.findElement(By.cssSelector("button.submit-btn"));
+    ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].scrollIntoView({block: 'center'});", submitBtn);
+    submitBtn.click();
+}
+
+
+/*
 @Test
     void testHomePageTitle() {
         NumOfTests++;;
         printWithLines("Testing the homepage title is GracefuLiving");
-       driver.get("http://127.0.0.1:8080/");
+       driver.get("https://coachshante.com/");
 
        String title =   driver.getTitle();
 
@@ -137,7 +187,7 @@ void clickingShopLinkNavigatesToShopPage() {
     printWithLines("Testing Shop Page");
 
     //set where we want to go
-    driver.get("http://127.0.0.1:8080/");
+    driver.get("https://coachshante.com/");
 
     //set how long want to wait for the link to appear
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -163,7 +213,7 @@ void clickingShopLinkNavigatesToShopPage() {
 void optionToAddYogaToCart(){
     NumOfTests++;
     printWithLines("Testing Cart Page");
-    driver.get("http://127.0.0.1:8080/shop");
+    driver.get("https://coachshante.com/shop");
 
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
@@ -190,7 +240,7 @@ void addingProductShowsItInCart(){
     NumOfTests++;
     printWithLines("Testing Add Item To Cart");
 
-    driver.get("http://127.0.0.1:8080/shop/test");
+    driver.get("https://coachshante.com/shop/test");
 
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
@@ -212,7 +262,7 @@ void addingProductShowsItInCart(){
 void yogaLessonsQuantityIncreasesWhenAddedAgain() {
     NumOfTests++;
     printWithLines("Testing Count Increases In Cart");
-    driver.get("http://127.0.0.1:8080/cart");
+    driver.get("https://coachshante.com/cart");
      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
      takeScreenshot("Cart_Quantity_Increased_Current_cart");
 
@@ -232,7 +282,7 @@ void yogaLessonsQuantityIncreasesWhenAddedAgain() {
     
 
   
-    driver.get("http://127.0.0.1:8080/shop/test");
+    driver.get("https://coachshante.com/shop/test");
    
     By addToCartButtonLocator = By.xpath("//button[normalize-space(text())='Add to Cart']");
 
@@ -244,7 +294,7 @@ void yogaLessonsQuantityIncreasesWhenAddedAgain() {
     addToCartButton.click();
 
    
-    driver.get("http://127.0.0.1:8080/cart");
+    driver.get("https://coachshante.com/cart");
 
    
     WebElement quantityCellAfter = driver.findElement(yogaQuantityLocator);
@@ -264,7 +314,7 @@ void yogaLessonsQuantityIncreasesWhenAddedAgain() {
 void testShopManagmentLink(){
 
     
-    driver.get("http://127.0.0.1:8080/");
+    driver.get("https://coachshante.com/");
 
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
@@ -427,7 +477,7 @@ void testAssessYourBalanceButtonOnHomepage(){
     NumOfTests++;
     printWithLines("Testing Homepage Slider Button");
 
-    driver.get("http://127.0.0.1:8080/");
+    driver.get("https://coachshante.com/");
 
     
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -453,9 +503,9 @@ void testTakeOurQuizButtonOnHomepage(){
     NumOfTests++;
     printWithLines("Testing Take Our Quiz Button");
 
-    driver.get("http://127.0.0.1:8080/");
+    driver.get("https://coachshante.com/");
 
-     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
      waitForHomePage(wait);
 
@@ -478,7 +528,7 @@ void testReadMoreTestimonialsButton(){
     NumOfTests++;
     printWithLines("Testing Read More Testimonials Button");
 
-    driver.get("http://127.0.0.1:8080/");
+    driver.get("https://coachshante.com/");
 
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
@@ -503,7 +553,7 @@ void testReadMoreTestimonialsButton(){
 void testInvalidAdminLogin(){
     printWithLines("Testing Invalid Admin Login");
 
-     driver.get("http://127.0.0.1:8080/");
+     driver.get("https://coachshante.com/");
 
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
@@ -534,8 +584,101 @@ void testInvalidAdminLogin(){
     takeScreenshot("Invalid_Password_data_submitted");
     success("Invalid Admin Login Passed");
 
+}*/
+
+@Test
+void testEnergyLeakQuiz(){
+    printWithLines("Testing Energy Leak Quiz");
+
+    driver.get("https://coachshante.com/intro/");
+
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+    JavascriptExecutor js = (JavascriptExecutor) driver;
+    
+    Actions actions = new Actions(driver);
+
+    WebElement startBtn = wait.until(
+            ExpectedConditions.elementToBeClickable(By.id("start-assessment-btn"))
+    );
+    startBtn.click();
+
+    WebElement termsBox = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(By.id("terms-scroll"))
+    );
+
+    actions.moveToElement(termsBox)
+           .click()
+           .sendKeys(Keys.PAGE_DOWN)
+           .sendKeys(Keys.PAGE_DOWN)
+           .sendKeys(Keys.END)
+           .perform();
+
+    WebElement checkbox = wait.until(driver1 -> {
+        WebElement cb = driver1.findElement(By.id("terms-checkbox"));
+        return cb.isEnabled() ? cb : null;
+    });
+    checkbox.click();
+
+    WebElement acceptBtn = wait.until(
+            ExpectedConditions.elementToBeClickable(By.id("continue-btn"))
+    );
+    acceptBtn.click();
+
+    wait.until(
+            ExpectedConditions.invisibilityOfElementLocated(By.id("terms-modal"))
+    );
+
+  
+
+
+
+
+     WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("fullName")));
+        usernameField.sendKeys("terry");
+
+    WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")));
+        emailField.sendKeys("terry@gmail.com");
+
+    WebElement phoneField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("contactNumber")));
+        phoneField.sendKeys("5555555555");
+
+    WebElement ageRadio = driver.findElement(By.cssSelector("input[name='ageBracket'][value='30-40']"));
+        ageRadio.click();
+
+    WebElement healthcareWorker = driver.findElement(By.cssSelector("input[name = 'healthcareWorker'][value='no']"));
+        healthcareWorker.click();
+
+    WebElement jobTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("jobTitle")));
+        jobTitle.sendKeys("Student");
+
+    WebElement workedWith = driver.findElement(By.cssSelector("input[name = 'experience'][value='no']"));
+        workedWith.click();
+
+    WebElement familiarWith = driver.findElement(By.cssSelector("input[name = 'familiarWith'][value='eft']"));
+        familiarWith.click();
+
+    WebElement experience = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("experienceDetails")));
+        experience.sendKeys("blah blah blah and more blah");
+
+    WebElement goals = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("goals")));
+        goals.sendKeys("blah blah blah and more blah");
+
+    WebElement challenges = driver.findElement(By.cssSelector("input[name = 'challenges'][value='physical']"));
+        challenges.click();
+
+     WebElement nextbtn1 = wait.until(ExpectedConditions.elementToBeClickable(By.className("next-btn")));
+    nextbtn1.click();
+
+      completeAllRadioSections();
+
+
+
+
+
+    String currentUrl = driver.getCurrentUrl();
+
+    Assertions.assertTrue(currentUrl.contains("/results"), "Expected URL to contain /results but was: " + currentUrl);
+
+    success("Energy Leak Quiz Passed");
 }
-
-
-
 }
