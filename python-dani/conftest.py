@@ -17,7 +17,7 @@ from dotenv import load_dotenv                                  # Loads var from
 load_dotenv()
 
 # Base URL for the app
-BASE_URL = os.getenv("TEST_BASE_URL", "https://graceful-living-web-application.onrender.com")
+BASE_URL = os.getenv("TEST_BASE_URL", "https://example.com")
 
 @pytest.fixture(scope="session")
 def base_url():
@@ -25,8 +25,8 @@ def base_url():
     return BASE_URL
 
 # Admin credentials (setup in .env)
-ADMIN_USERNAME = os.getenv("TEST_ADMIN_USERNAME", "skumar")
-ADMIN_PASSWORD = os.getenv("TEST_ADMIN_PASSWORD", "changeyou")
+ADMIN_USERNAME = os.getenv("TEST_ADMIN_USERNAME", "example")
+ADMIN_PASSWORD = os.getenv("TEST_ADMIN_PASSWORD", "example")
 
 # Create and configure Chrome WebDriver instance
 # This fixture is session-scoped, so it's created once per test session
