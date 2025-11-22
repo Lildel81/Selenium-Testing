@@ -1,0 +1,56 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+
+def admin_login(driver, wait):
+    driver.delete_all_cookies()
+
+    driver.get("http://localhost:8080/login")
+
+    driver.refresh()
+
+    # Wait for CSRF cookie
+    wait.until(lambda d: any(c['name'] == '_csrf' for c in d.get_cookies()))
+
+    # Fill form
+    driver.find_element(By.NAME, "username").send_keys(ADMIN_USERNAME)
+    driver.find_element(By.NAME, "password").send_keys(ADMIN_PASSWORD)
+
+    # Normal click
+    login_btn = wait.until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, "button.login_button[type='submit']")
+    ))
+    login_btn.click()
+
+    # Wait for redirect
+    wait.until(EC.url_contains("/adminportal"))
+
+def test_back_button(driver):
+    # 1. wait for page to load 
+    wait = WebDriverWait(driver, 10)
+
+    # 2. Log into Admin Portal
+    admin_login(driver, wait)
+
+    # 3. Go to Content Management
+    driver.get("http://localhost:8080/content-management")
+
+    # 4. Click the back button
+    back_button = wait.until(
+        EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(text(), 'Back to Admin Portal')]")
+        )
+    )
+    back_button.click()
+
+    # 5. See if back to Admin Portal
+    wait.until(lambda d: d.current_url != "")
+    assert "/adminportal" in driver.current_url, "Content Management back button did not open /adminportal"
